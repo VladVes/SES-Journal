@@ -1,39 +1,39 @@
 package app
 
 import (
+	"net/http"
+	"time"
 
-	// "time"
-
-	"github.com/gofiber/fiber/v3"
 	"github.com/sirupsen/logrus"
 
 	conf "github.com/VladVes/SES-Journal/internal/config"
-	. "github.com/VladVes/SES-Journal/internal/logger"
+	"github.com/VladVes/SES-Journal/internal/logger"
+	"github.com/VladVes/SES-Journal/internal/router"
 )
 
 func Run() {
+	appConf := conf.GetAppConfig()
 
-	Log.WithFields(logrus.Fields{
+	logger.Init(appConf.LogLevel)
+
+	logger.Log.WithFields(logrus.Fields{
 		"app":     "SES-Journal",
 		"version": "0.0.1",
 		"author":  "VladVes",
-		"port":    "8080",
-		"host":    "localhost",
-	}).Info("App is running")
+		"port":    appConf.Port,
+	}).Info("App is starting")
 
-	app := fiber.New(conf.FiberConfig)
-	appConf := conf.GetAppConfig()
+	rt := router.New()
+	handler := rt.Register()
 
-	// -------------------------------------------------
-	app.Get("/", func(c fiber.Ctx) error {
-		return c.SendString("Hello, World")
-	})
-
-	// -------------------------------------------------
-
-	lErr := app.Listen(":" + appConf.Port)
-	if lErr != nil {
-		Log.WithError(lErr).Fatal("app is not running")
+	server := &http.Server{
+		Addr:         ":" + appConf.Port,
+		Handler:      handler,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 3 * time.Second,
 	}
 
+	if err := server.ListenAndServe(); err != nil {
+		logger.Log.WithError(err).Fatal("App failed to start")
+	}
 }
