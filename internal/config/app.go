@@ -10,6 +10,7 @@ import (
 
 const (
 	prod            = "production"
+	dev             = "development"
 	defaultAppPort  = "3000"
 	defaultLogLevel = "info"
 	fallbackDsn     = "host=localhost user=postgres password=mysecretpassword dbname=postgres port=5432 sslmode=disable"
@@ -30,12 +31,22 @@ type AppConfig struct {
 }
 
 func buildDsn() string {
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	name := os.Getenv("DB_NAME")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, name, port) // TODO: check sslmode for prod
+	env := os.Getenv("ENV")
+	if env == dev {
+		if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
+			return dsn
+		}
+	}
+	if env == prod {
+		host := os.Getenv("DB_HOST")
+		port := os.Getenv("DB_PORT")
+		name := os.Getenv("DB_NAME")
+		user := os.Getenv("DB_USER")
+		password := os.Getenv("DB_PASSWORD")
+		return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, name, port) // TODO: check sslmode for prod
+	}
+
+	return fallbackDsn
 }
 
 func GetAppConfig() AppConfig {
