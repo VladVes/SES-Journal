@@ -8,9 +8,10 @@ services:
     environment:
       - PORT=8080
       - ENV=development
-      - DATABASE_URL="host=localhost user=ses-journal password=secret dbname=ses-journal-db port=5432 sslmode=disable"
+      - DATABASE_URL=host=ses-journal-db user=ses-journal password=secret dbname=ses-journal-db port=5432 sslmode=disable
     depends_on:
-      - ses-journal-db
+      ses-journal-db:
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
@@ -22,10 +23,16 @@ services:
       POSTGRES_USER: ses-journal
       POSTGRES_PASSWORD: secret 
     ports:
-      -"5432:5432"
+      - "5432:5432"
     volumes:
-      -ses_journal_data:/var/lib/postgresql/data
+      - ses_journal_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ses-journal -d ses-journal-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  ses_journal_data
+  ses_journal_data:
+    driver: local
