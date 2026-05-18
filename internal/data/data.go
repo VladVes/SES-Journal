@@ -46,7 +46,7 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 	dbConf := getDBConfig()
 	db, err := gorm.Open(postgres.Open(dsn), dbConf)
 	if err != nil {
-		log.Fatalf("DB connection error: %v", err)
+		// log.Fatalf("DB connection error: %v", err)
 		return nil, err
 	}
 
@@ -56,12 +56,12 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("DB pool error, %v", err)
+		// log.Fatalf("DB pool error, %v", err)
 		return nil, err
 	}
 
 	if err := sqlDB.Ping(); err != nil {
-		log.Fatalf("DB ping error: %v", err)
+		// log.Fatalf("DB ping error: %v", err)
 		return nil, err
 	}
 

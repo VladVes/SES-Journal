@@ -7,6 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	conf "github.com/VladVes/SES-Journal/internal/config"
+	"github.com/VladVes/SES-Journal/internal/data"
+
 	"github.com/VladVes/SES-Journal/internal/logger"
 	"github.com/VladVes/SES-Journal/internal/router"
 )
@@ -35,5 +37,11 @@ func Run() {
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Log.WithError(err).Fatal("App failed to start")
+	}
+
+	_, err := data.DBConnet(appConf.Dsn)
+
+	if err != nil {
+		logger.Log.WithError(err).Fatal("DB connection failed")
 	}
 }
