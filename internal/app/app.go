@@ -35,13 +35,14 @@ func Run() {
 		WriteTimeout: 3 * time.Second,
 	}
 
-	if err := server.ListenAndServe(); err != nil {
-		logger.Log.WithError(err).Fatal("App failed to start")
-	}
-
 	_, err := data.DBConnet(appConf.Dsn)
 
 	if err != nil {
 		logger.Log.WithError(err).Fatal("DB connection failed")
 	}
+
+	if err := server.ListenAndServe(); err != nil {
+		logger.Log.WithError(err).Fatal("App failed to start")
+	}
+
 }

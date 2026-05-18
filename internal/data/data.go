@@ -50,6 +50,8 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	log.Println("from DB connect")
+
 	appLogger.Log.WithFields(logrus.Fields{
 		"dsn": dsn,
 	}).Info("DB connection established")
@@ -73,5 +75,6 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 		"ConnMaxLifeTime": ConnMaxLifetime,
 	}).Info("DB connection pool configured")
 
+	log.Println("DB connection established")
 	return db, nil
 }
