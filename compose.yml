@@ -14,7 +14,10 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
+      - ./:/app
+      - /app/tmp
       - ./logs:/app/logs
+    command: air -c .air.toml
     
   ses-journal-db:
     image: postgres:15-alpine

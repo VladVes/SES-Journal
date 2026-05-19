@@ -1,5 +1,7 @@
 [build]
-cmd = "go build -o tmp/main ."
+cmd = "go build -o tmp/main ./cmd/main.go"
 bin = "tmp/main"
-full_bin = "go build -o tmp/main . && tmp/main"
 log = "air_errors.log"
+
+[misc]
+tmp_dir = "tmp"

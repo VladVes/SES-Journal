@@ -4,7 +4,7 @@ BIN_DIR := ./bin
 .PHONY: run build test clean lint tidy
 
 compose:
-	sudo docker compose up
+	sudo docker compose up --build
 
 run:
 	go run ./cmd/main.go

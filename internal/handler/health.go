@@ -11,5 +11,5 @@ func NewHealthHandler() *HealthHandler {
 }
 
 func (h *HealthHandler) Index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Ses journal and events log"))
+	w.Write([]byte("Ses journal and events log is in porgress... "))
 }
