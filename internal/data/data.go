@@ -62,7 +62,7 @@ func seedDB(db *gorm.DB) {
 
 	// TODO: logic dublication
 	if usersCount == 0 {
-		if err := db.Exec(UserSeedsSeedQuery).Error; err != nil {
+		if err := db.Exec(UsersSeedsQuery).Error; err != nil {
 			log.Fatalf("Seeds DB users error: %v", err)
 		}
 		appLogger.Log.WithFields(logrus.Fields{
@@ -120,6 +120,10 @@ func DBConnet(dsn, env string) (*gorm.DB, error) {
 	}).Info("DB connection pool configured")
 
 	log.Println("DB connection established")
+
+	if env == conf.DevEnv {
+		initDBDevMode(db)
+	}
 
 	if env == conf.DevEnv {
 		initDBDevMode(db)

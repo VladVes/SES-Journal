@@ -1,7 +1,7 @@
 package data
 
 const (
-	UserSeedsSeedQuery string = `INSERT INTO app_users (id, login, email, password, role, active, last_login, created_at, updated_at, deleted_at) VALUES
+	UsersSeedsQuery string = `INSERT INTO app_users (id, login, email, password, role, active, last_login, created_at, updated_at, deleted_at) VALUES
 (1, 'Igor', 'igor@example.com', '1', 'shift engineer', 'true', '2023-10-01 10:00:00', '2023-10-01 10:00:00', '2023-10-01 10:00:00', NULL),
 (2, 'Artem', 'artem@mail.com', '1', 'shift engineer', 'true', '2023-10-01 10:00:00', '2023-10-01 10:01:00', '2023-10-01 10:01:00', NULL),
 (3, 'John', 'john@google.com', '1', 'shift engineer', 'true', '2023-10-01 10:00:00', '2023-10-01 10:02:00', '2023-10-01 10:02:00', NULL),
