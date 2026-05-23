@@ -35,7 +35,7 @@ func Run() {
 		WriteTimeout: 3 * time.Second,
 	}
 
-	_, err := data.DBConnet(appConf.Dsn)
+	_, err := data.DBConnet(appConf.Dsn, appConf.Env)
 
 	if err != nil {
 		logger.Log.WithError(err).Fatal("DB connection failed")

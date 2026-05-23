@@ -4,9 +4,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/sirupsen/logrus"
-	// conf "github.com/VladVes/SES-Journal/internal/config"
+	conf "github.com/VladVes/SES-Journal/internal/config"
 	appLogger "github.com/VladVes/SES-Journal/internal/logger"
+	"github.com/VladVes/SES-Journal/internal/models"
+
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	DBLogger "gorm.io/gorm/logger"
@@ -42,15 +44,59 @@ func getDBConfig() *gorm.Config {
 	}
 }
 
-func DBConnet(dsn string) (*gorm.DB, error) {
+func CountEntities(db *gorm.DB, model any) int64 { //TODO: model any - so-so
+	var counter int64
+	if err := db.Model(model).Count(&counter).Error; err != nil {
+		log.Fatalf("Seeds DB users count error: %v", err)
+	}
+
+	return counter
+}
+
+func seedDB(db *gorm.DB) {
+	var user models.User
+	var logRecord models.LogRecord
+
+	usersCount := CountEntities(db, &user)
+	logRecordCount := CountEntities(db, &logRecord)
+
+	// TODO: logic dublication
+	if usersCount == 0 {
+		if err := db.Exec(UserSeedsSeedQuery).Error; err != nil {
+			log.Fatalf("Seeds DB users error: %v", err)
+		}
+		appLogger.Log.WithFields(logrus.Fields{
+			"usersCount": CountEntities(db, &user),
+		}).Info("DB users seeds successful")
+	}
+
+	if logRecordCount == 0 {
+		if err := db.Exec(LogRecordsSeedQuery).Error; err != nil {
+			log.Fatalf("Seeds DB log records error: %v", err)
+		}
+		appLogger.Log.WithFields(logrus.Fields{
+			"logsRecordCount": CountEntities(db, &logRecord),
+		}).Info("DB log records seeds successful")
+	}
+}
+
+func initDBDevMode(db *gorm.DB) {
+	if err := db.AutoMigrate(&models.User{}, &models.LogRecord{}); err != nil {
+		log.Fatalf("DB development mode initialization error: %v", err)
+	}
+	appLogger.Log.WithFields(logrus.Fields{
+		"ENV": conf.DevEnv,
+	}).Info("DB development mode initialization successful")
+
+	seedDB(db)
+}
+
+func DBConnet(dsn, env string) (*gorm.DB, error) {
 	dbConf := getDBConfig()
 	db, err := gorm.Open(postgres.Open(dsn), dbConf)
 	if err != nil {
-		// log.Fatalf("DB connection error: %v", err)
 		return nil, err
 	}
-
-	log.Println("from DB connect")
 
 	appLogger.Log.WithFields(logrus.Fields{
 		"dsn": dsn,
@@ -58,12 +104,10 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		// log.Fatalf("DB pool error, %v", err)
 		return nil, err
 	}
 
 	if err := sqlDB.Ping(); err != nil {
-		// log.Fatalf("DB ping error: %v", err)
 		return nil, err
 	}
 
@@ -76,5 +120,10 @@ func DBConnet(dsn string) (*gorm.DB, error) {
 	}).Info("DB connection pool configured")
 
 	log.Println("DB connection established")
+
+	if env == conf.DevEnv {
+		initDBDevMode(db)
+	}
+
 	return db, nil
 }
