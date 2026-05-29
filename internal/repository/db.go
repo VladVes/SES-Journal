@@ -1,4 +1,4 @@
-package data
+package repository
 
 import (
 	"log"
@@ -55,10 +55,10 @@ func CountEntities(db *gorm.DB, model any) int64 { //TODO: model any - so-so
 
 func seedDB(db *gorm.DB) {
 	var user models.User
-	var logRecord models.Entry
+	var entry models.Entry
 
 	usersCount := CountEntities(db, &user)
-	logRecordCount := CountEntities(db, &logRecord)
+	entryCount := CountEntities(db, &entry)
 
 	// TODO: logic dublication
 	if usersCount == 0 {
@@ -70,13 +70,13 @@ func seedDB(db *gorm.DB) {
 		}).Info("DB users seeds successful")
 	}
 
-	if logRecordCount == 0 {
-		if err := db.Exec(LogRecordsSeedQuery).Error; err != nil {
-			log.Fatalf("Seeds DB log records error: %v", err)
+	if entryCount == 0 {
+		if err := db.Exec(EnriesSeedQuery).Error; err != nil {
+			log.Fatalf("Entry Seeds error: %v", err)
 		}
 		appLogger.Log.WithFields(logrus.Fields{
-			"logsRecordCount": CountEntities(db, &logRecord),
-		}).Info("DB log records seeds successful")
+			"entryCount": CountEntities(db, &entry),
+		}).Info("DB entry seeds successful")
 	}
 }
 

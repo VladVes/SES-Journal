@@ -1,4 +1,4 @@
-package data
+package repository
 
 const (
 	UsersSeedsQuery string = `INSERT INTO app_users (id, login, email, password, role, active, last_login, created_at, updated_at, deleted_at) VALUES
@@ -8,7 +8,7 @@ const (
 (4, 'Alice', 'alice@mail.com', '1', 'senior engineer', 'true', '2023-10-01 10:00:00', '2023-10-01 10:03:00', '2023-10-01 10:03:00', NULL);
 `
 
-	LogRecordsSeedQuery string = `INSERT INTO app_log_records (
+	EnriesSeedQuery string = `INSERT INTO app_entries (
     id,
     rec_number,
     rec_type,
