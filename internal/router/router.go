@@ -16,8 +16,10 @@ func New() *Router {
 
 func (r *Router) Register() http.Handler {
 	h := handler.NewHealthHandler()
+	u := handler.NewUserHandler()
 
 	r.mux.HandleFunc("GET /", h.Index)
+	r.mux.HandleFunc("GET /users", u.Index)
 
 	return r.mux
 }

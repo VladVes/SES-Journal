@@ -91,7 +91,7 @@ func initDBDevMode(db *gorm.DB) {
 	seedDB(db)
 }
 
-func DBConnet(dsn, env string) (*gorm.DB, error) {
+func dbConnet(dsn, env string) (*gorm.DB, error) {
 	dbConf := getDBConfig()
 	db, err := gorm.Open(postgres.Open(dsn), dbConf)
 	if err != nil {
@@ -130,4 +130,19 @@ func DBConnet(dsn, env string) (*gorm.DB, error) {
 	}
 
 	return db, nil
+}
+
+var dbConnection *gorm.DB
+
+func GetDBConnection() *gorm.DB {
+	appConf := conf.GetAppConfig()
+
+	if dbConnection == nil {
+		var err error
+		dbConnection, err = dbConnet(appConf.Dsn, appConf.Env)
+		if err != nil {
+			appLogger.Log.WithError(err).Fatal("DB connection failed")
+		}
+	}
+	return dbConnection
 }

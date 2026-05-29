@@ -7,7 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	conf "github.com/VladVes/SES-Journal/internal/config"
-	dataRepo "github.com/VladVes/SES-Journal/internal/repository"
 
 	"github.com/VladVes/SES-Journal/internal/logger"
 	"github.com/VladVes/SES-Journal/internal/router"
@@ -33,12 +32,6 @@ func Run() {
 		Handler:      handler,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
-	}
-
-	_, err := dataRepo.DBConnet(appConf.Dsn, appConf.Env)
-
-	if err != nil {
-		logger.Log.WithError(err).Fatal("DB connection failed")
 	}
 
 	if err := server.ListenAndServe(); err != nil {
