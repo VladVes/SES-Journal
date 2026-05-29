@@ -2,20 +2,20 @@ package models
 
 import "time"
 
-type LogType string
+type EntryType string
 
 const (
-	Incident      LogType = "incident"
-	ShiftWork     LogType = "shiftWork"
-	ShiftInfo     LogType = "shiftInfo"
-	VisitRegisty  LogType = "visitRegistry"
-	CustomEntries LogType = "customEntries"
+	Incident      EntryType = "incident"
+	ShiftWork     EntryType = "shiftWork"
+	ShiftInfo     EntryType = "shiftInfo"
+	VisitRegisty  EntryType = "visitRegistry"
+	CustomEntries EntryType = "customEntries"
 )
 
-type LogRecord struct {
+type Entry struct {
 	ID        string `gorm:"primaryKey"`
 	RecNumber uint
-	RecType   LogType
+	RecType   EntryType
 
 	VisitorName     string
 	VisitPoupose    string

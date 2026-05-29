@@ -12,7 +12,7 @@ type User struct {
 	Role     string
 	Active   bool
 
-	Records []LogRecord
+	Records []Entry
 	// Comments []Comment
 
 	LastLogin time.Time
