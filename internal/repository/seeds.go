@@ -14,7 +14,7 @@ const (
     rec_type,
     visitor_name,
     visit_poupose,
-    oranization_name,
+    organization_name,
     malfunction_desc,
     malfunction_cause,
     malfunction_resolution,

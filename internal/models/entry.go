@@ -17,9 +17,9 @@ type Entry struct {
 	RecNumber uint
 	RecType   EntryType
 
-	VisitorName     string
-	VisitPoupose    string
-	OranizationName string
+	VisitorName      string
+	VisitPoupose     string
+	OrganizationName string
 
 	MalfunctionDesc       string
 	MalfunctionCause      string
