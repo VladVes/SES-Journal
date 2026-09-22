@@ -8,7 +8,7 @@ const (
 (4, 'Alice', 'alice@mail.com', '1', 'senior engineer', 'true', '2023-10-01 10:00:00', '2023-10-01 10:03:00', '2023-10-01 10:03:00', NULL);
 `
 
-	EnriesSeedQuery string = `INSERT INTO app_entries (
+	EntriesSeedQuery string = `INSERT INTO app_entries (
     id,
     rec_number,
     rec_type,

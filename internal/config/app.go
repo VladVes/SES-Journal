@@ -11,6 +11,7 @@ import (
 const (
 	ProdEnv         = "production"
 	DevEnv          = "development"
+	TestEnv         = "testing"
 	DefaultAppPort  = "3000"
 	DefaultLogLevel = "info"
 	FallbackDsn     = "host=localhost user=postgres password=mysecretpassword dbname=postgres port=5432 sslmode=disable"

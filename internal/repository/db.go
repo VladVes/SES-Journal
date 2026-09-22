@@ -71,7 +71,7 @@ func seedDB(db *gorm.DB) {
 	}
 
 	if entryCount == 0 {
-		if err := db.Exec(EnriesSeedQuery).Error; err != nil {
+		if err := db.Exec(EntriesSeedQuery).Error; err != nil {
 			log.Fatalf("Entry Seeds error: %v", err)
 		}
 		appLogger.Log.WithFields(logrus.Fields{
@@ -86,7 +86,7 @@ func initDBDevMode(db *gorm.DB) {
 	}
 	appLogger.Log.WithFields(logrus.Fields{
 		"ENV": conf.DevEnv,
-	}).Info("DB development mode initialization successful")
+	}).Info("DB initialization successful")
 
 	seedDB(db)
 }
@@ -120,10 +120,6 @@ func dbConnet(dsn, env string) (*gorm.DB, error) {
 	}).Info("DB connection pool configured")
 
 	log.Println("DB connection established")
-
-	if env == conf.DevEnv {
-		initDBDevMode(db)
-	}
 
 	if env == conf.DevEnv {
 		initDBDevMode(db)
