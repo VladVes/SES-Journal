@@ -2,23 +2,23 @@ package models
 
 import "time"
 
-type EntryType string
+type RecordType string
 
 const (
-	Incident      EntryType = "incident"
-	ShiftWork     EntryType = "shiftWork"
-	ShiftInfo     EntryType = "shiftInfo"
-	VisitRegisty  EntryType = "visitRegistry"
-	CustomEntries EntryType = "customEntries"
+	Incident      RecordType = "incident"
+	ShiftWork     RecordType = "shiftWork"
+	ShiftInfo     RecordType = "shiftInfo"
+	VisitRegisty  RecordType = "visitRegistry"
+	CustomEntries RecordType = "customEntries"
 )
 
-type Entry struct {
+type Record struct {
 	ID        string `gorm:"primaryKey"`
 	RecNumber uint
-	RecType   EntryType
+	RecType   RecordType
 
 	VisitorName      string
-	VisitPoupose     string
+	VisitPurpose     string
 	OrganizationName string
 
 	MalfunctionDesc       string

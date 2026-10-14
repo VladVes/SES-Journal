@@ -55,10 +55,10 @@ func CountEntities(db *gorm.DB, model any) int64 { //TODO: model any - so-so
 
 func seedDB(db *gorm.DB) {
 	var user models.User
-	var entry models.Entry
+	var record models.Record
 
 	usersCount := CountEntities(db, &user)
-	entryCount := CountEntities(db, &entry)
+	recordCount := CountEntities(db, &record)
 
 	// TODO: logic dublication
 	if usersCount == 0 {
@@ -70,18 +70,18 @@ func seedDB(db *gorm.DB) {
 		}).Info("DB users seeds successful")
 	}
 
-	if entryCount == 0 {
-		if err := db.Exec(EntriesSeedQuery).Error; err != nil {
+	if recordCount == 0 {
+		if err := db.Exec(RecordsSeedQuery).Error; err != nil {
 			log.Fatalf("Entry Seeds error: %v", err)
 		}
 		appLogger.Log.WithFields(logrus.Fields{
-			"entryCount": CountEntities(db, &entry),
+			"entryCount": CountEntities(db, &record),
 		}).Info("DB entry seeds successful")
 	}
 }
 
 func initDBDevMode(db *gorm.DB) {
-	if err := db.AutoMigrate(&models.User{}, &models.Entry{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Record{}); err != nil {
 		log.Fatalf("DB development mode initialization error: %v", err)
 	}
 	appLogger.Log.WithFields(logrus.Fields{

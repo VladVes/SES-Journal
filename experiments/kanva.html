@@ -1,0 +1,60 @@
+<div id="container"></div>
+<button id="addMarkerBtn">Добавить маркер</button>
+<button id="saveBtn">Сохранить (в консоль)</button>
+
+<script src="https://unpkg.com/konva@8/konva.min.js"></script>
+<script>
+  const stage = new Konva.Stage({
+    container: 'container',
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  const layer = new Konva.Layer();
+  stage.add(layer);
+
+  // Пример здания
+  const building = new Konva.Rect({
+    x: 100, y: 100, width: 120, height: 80,
+    fill: '#ddd', stroke: '#333', strokeWidth: 2,
+    name: 'building'
+  });
+  layer.add(building);
+
+  let isAddingMarker = false;
+
+  document.getElementById('addMarkerBtn').addEventListener('click', () => {
+    isAddingMarker = true;
+    document.body.style.cursor = 'crosshair';
+  });
+
+  stage.on('click', (e) => {
+    if (!isAddingMarker) return;
+    const pos = stage.getPointerPosition();
+    const marker = new Konva.Circle({
+      x: pos.x, y: pos.y, radius: 8,
+      fill: '#f00', stroke: '#fff', strokeWidth: 2,
+      draggable: true,
+      name: 'marker'
+    });
+    // Всплывающее описание можно реализовать через tooltip при клике
+    marker.on('click', () => alert('Состояние: требуется обслуживание'));
+    layer.add(marker);
+    layer.draw();
+    isAddingMarker = false;
+    document.body.style.cursor = 'default';
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const objects = [];
+    layer.find('.building, .marker').each(node => {
+      objects.push({
+        type: node.name(),
+        x: node.x(), y: node.y(),
+        width: node.width(), height: node.height(),
+        radius: node.radius ? node.radius() : undefined,
+        description: node.description || ''
+      });
+    });
+    console.log(JSON.stringify(objects, null, 2));
+  });
+</script>
