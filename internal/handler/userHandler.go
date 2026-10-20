@@ -9,23 +9,32 @@ import (
 	"github.com/VladVes/SES-Journal/internal/services"
 )
 
-type UserHandler struct{}
-
-func NewUserHandler() *UserHandler {
-	return &UserHandler{}
+type UserHandler struct {
+	userService *services.UserService
 }
 
-func (h *UserHandler) Index(w http.ResponseWriter, r *http.Request) {
-	userService := services.NewUserServise()
-	result, err := userService.GetUsersList()
+func NewUserHandler(userv *services.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userv,
+	}
+}
+
+func (h *UserHandler) HandleUsersList(w http.ResponseWriter, r *http.Request) {
+	result, err := h.userService.GetUsersList()
 	if err != nil {
-		logger.Log.WithError(err).Fatal("error while getting users list")
+		logger.Log.WithError(err).Error("error while getting users list")
+		http.Error(w, "internal server error while getting users list", http.StatusInternalServerError)
+		return
 	}
 
 	jsonData, err := json.Marshal(result)
 	if err != nil {
-		logger.Log.WithError(err).Fatal("error while users list json serialize")
+		logger.Log.WithError(err).Error("error while users list json serialize")
+		http.Error(w, "internal server error while users list json serialize", http.StatusInternalServerError)
+		return
 	}
 
-	w.Write([]byte(jsonData))
+	w.Header().Set("Content-Type", "application/json")
+	// w.Write([]byte(jsonData))
+	w.Write(jsonData)
 }

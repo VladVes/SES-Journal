@@ -7,6 +7,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	conf "github.com/VladVes/SES-Journal/internal/config"
+	"github.com/VladVes/SES-Journal/internal/handler"
+	"github.com/VladVes/SES-Journal/internal/repository"
+	"github.com/VladVes/SES-Journal/internal/services"
 
 	"github.com/VladVes/SES-Journal/internal/logger"
 	"github.com/VladVes/SES-Journal/internal/router"
@@ -24,12 +27,18 @@ func Run() {
 		"port":    appConf.Port,
 	}).Info("App is starting")
 
+	db := repository.GetDBConnection()
+
+	urepo := repository.NewUserRepo(db)
+	uservice := services.NewUserService(urepo)
+	uhandler := handler.NewUserHandler(uservice)
+
 	rt := router.New()
-	handler := rt.Register()
+	h := rt.Register(uhandler)
 
 	server := &http.Server{
 		Addr:         ":" + appConf.Port,
-		Handler:      handler,
+		Handler:      h,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
 	}

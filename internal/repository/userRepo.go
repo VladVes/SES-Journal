@@ -7,26 +7,26 @@ import (
 )
 
 type UserRepository interface {
-	GetUsersList() (models.User, error)
+	GetUsersList() ([]models.User, error)
 	CreateUser(user *models.User) (string, error)
 }
 
-type UsersRepo struct {
+type UserRepo struct {
 	DB *gorm.DB
 }
 
-func NewUsersRepo() *UsersRepo {
-	return &UsersRepo{
-		DB: GetDBConnection(),
+func NewUserRepo(dbCon *gorm.DB) UserRepository {
+	return &UserRepo{
+		DB: dbCon,
 	}
 }
 
-func (r *UsersRepo) CreateUser(u *models.User) (string, error) {
+func (r *UserRepo) CreateUser(u *models.User) (string, error) {
 	// TODO
 	return "", nil
 }
 
-func (r *UsersRepo) GetUsersList() ([]models.User, error) {
+func (r *UserRepo) GetUsersList() ([]models.User, error) {
 	var usersList []models.User
 
 	if err := r.DB.Select("id", "login", "role").Find(&usersList).Error; err != nil {

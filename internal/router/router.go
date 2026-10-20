@@ -14,12 +14,11 @@ func New() *Router {
 	return &Router{mux: http.NewServeMux()}
 }
 
-func (r *Router) Register() http.Handler {
+func (r *Router) Register(uh *handler.UserHandler) http.Handler {
 	h := handler.NewHealthHandler()
-	u := handler.NewUserHandler()
 
 	r.mux.HandleFunc("GET /", h.Index)
-	r.mux.HandleFunc("GET /users", u.Index)
+	r.mux.HandleFunc("GET /users", uh.HandleUsersList)
 
 	return r.mux
 }
