@@ -27,7 +27,10 @@ func Run() {
 		"port":    appConf.Port,
 	}).Info("App is starting")
 
-	db := repository.GetDBConnection()
+	db, dbErr := repository.GetDBConnection(appConf)
+	if dbErr != nil {
+		logger.Log.WithError(dbErr).Fatal("DB connection failed")
+	}
 
 	urepo := repository.NewUserRepo(db)
 	uservice := services.NewUserService(urepo)

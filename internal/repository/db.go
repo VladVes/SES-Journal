@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	conf "github.com/VladVes/SES-Journal/internal/config"
@@ -91,7 +92,7 @@ func initDBDevMode(db *gorm.DB) {
 	seedDB(db)
 }
 
-func dbConnet(dsn, env string) (*gorm.DB, error) {
+func dbConnect(dsn, env string) (*gorm.DB, error) {
 	dbConf := getDBConfig()
 	db, err := gorm.Open(postgres.Open(dsn), dbConf)
 	if err != nil {
@@ -128,17 +129,16 @@ func dbConnet(dsn, env string) (*gorm.DB, error) {
 	return db, nil
 }
 
-var dbConnection *gorm.DB
+var (
+	dbOnce sync.Once
+	dbConn *gorm.DB
+	dbErr  error
+)
 
-func GetDBConnection() *gorm.DB {
-	appConf := conf.GetAppConfig()
+func GetDBConnection(appConf conf.AppConfig) (*gorm.DB, error) {
+	dbOnce.Do(func() {
+		dbConn, dbErr = dbConnect(appConf.Dsn, appConf.Env)
+	})
 
-	if dbConnection == nil {
-		var err error
-		dbConnection, err = dbConnet(appConf.Dsn, appConf.Env)
-		if err != nil {
-			appLogger.Log.WithError(err).Fatal("DB connection failed")
-		}
-	}
-	return dbConnection
+	return dbConn, dbErr
 }
