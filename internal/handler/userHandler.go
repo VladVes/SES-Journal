@@ -5,9 +5,9 @@ import (
 
 	"net/http"
 
+	"github.com/VladVes/SES-Journal/internal/dto"
 	"github.com/VladVes/SES-Journal/internal/logger"
 	"github.com/VladVes/SES-Journal/internal/services"
-	"github.com/VladVes/SES-Journal/internal/dto"
 )
 
 type UserHandler struct {
@@ -44,9 +44,19 @@ func (h *UserHandler) HandleCreatUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
 
-	var req dto.CreateUserRequest 
+	var req dto.CreateUserRequest
+
+	// TODO:
+	/*
+		Чтобы защититься от огромных тел, можно обернуть:
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) (1МБ) перед декодированием
+	*/
+
+	// json.NewDecoder(r.Body) — лучше, чем io.ReadAll + json.Unmarshal, меньше аллокаций, читает прямо из тела запроса
 	dec := json.NewDecoder(r.Body)
+	// dec.DisallowUnknownFields() — полезно, чтобы сразу отловить неверный JSON
 	dec.DisallowUnknownFields()
+	// defer r.Body.Close() — хорошая привычка
 	defer r.Body.Close()
 
 	if err := dec.Decode(&req); err != nil {
@@ -59,6 +69,7 @@ func (h *UserHandler) HandleCreatUser(w http.ResponseWriter, r *http.Request) {
 	// newUser, err := h.userService.CreateUser(req)
 
 	w.Header().Set("Content-Type", "application/json")
+	// Статус для создания — http.StatusCreated (201), как выше
 	w.WriteHeader(http.StatusCreated)
 
 }
