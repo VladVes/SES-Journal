@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	GetUsersList() ([]models.User, error)
 	CreateUser(user *models.User) (string, error)
+	IsEmailExists(email string) (bool, error)
 }
 
 type UserRepo struct {
@@ -34,4 +35,12 @@ func (r *UserRepo) GetUsersList() ([]models.User, error) {
 	}
 
 	return usersList, nil
+}
+
+func (r *UserRepo) IsEmailExists(email string) (bool, error) {
+	// TODO: implement real logic
+
+	// simplified result data
+	return email == "ivan@mail.ru", nil
+
 }

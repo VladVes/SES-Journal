@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 
 	"net/http"
 
@@ -77,6 +78,13 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	newUser, err := h.userService.CreateNewUser(req)
 	if err != nil {
+		// проверяем обшибка ли бизнес слоя (service) или же чисто техническая
+		// связанная со взаимодействием с БД
+		if errors.Is(err, services.ErrEmailExists) {
+			logger.Log.WithField("email", req.Email).Info("attempt to create a user with an existing email")
+			http.Error(w, "email already exists", http.StatusConflict)
+			return
+		}
 		// для 500тых лучше Error т.к. сбой на стороне сервера
 		logger.Log.WithError(err).Error("creating user problem")
 		http.Error(w, "user creation error", http.StatusInternalServerError)
@@ -92,10 +100,10 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 		Active: newUser.Active,
 	}
 
-	// Статус для создания — http.StatusCreated (201)
 	w.Header().Set("Content-Type", "application/json")
 	// добавляем Location header: по REST будет хорошим тоном для 201 Created
 	w.Header().Set("Location", "/users/"+newUser.ID)
+	// Статус для создания — http.StatusCreated (201)
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {

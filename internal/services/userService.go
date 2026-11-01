@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/VladVes/SES-Journal/internal/models"
@@ -39,6 +40,25 @@ func (s *UserService) CreateNewUser(in dto.CreateUserRequest) (models.User, erro
 	// CreatedAt time.Time
 	// UpdatedAt time.Time
 	// DeletedAt time.Time
+
+	// Пример бизнес-проверки
+	// Можно сначала проверить через репозиторий, есть ли юзер с таким email
+	// техническую ошибку (упал коннект к БД) мы просто оборачиваем через %w,
+	// чтобы в логах был стек/контекст.
+	// Бизнес-ошибку мы возвращаем как есть в виде ErrEmailExists,
+	// чтобы хендлер мог по ней понять, что это именно конфликт.
+	exists, err := s.repo.IsEmailExists(in.Email)
+	if err != nil {
+		// Если это техническая ошибка репозитория - оборачиваем, но оставляем контекст
+		// т.е. ошибка при работе с базой при попытке проверить email
+		return models.User{}, fmt.Errorf("check email exists: %w", err)
+	}
+	if exists {
+		// Бизнес-ошибка - возвращаем именно наш sentinel
+		return models.User{}, ErrEmailExists
+	}
+
+
 	tmp := models.User{
 		ID:       "2342",
 		Name:     "Ivan",
