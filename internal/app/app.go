@@ -36,8 +36,12 @@ func Run() {
 	uservice := services.NewUserService(urepo)
 	uhandler := handler.NewUserHandler(uservice)
 
+	rrepo := repository.NewRecordRepo(db)
+	rservice := services.NewRecordSerivce(rrepo)
+	rhandler := handler.NewRecordHandler(rservice)
+
 	rt := router.New()
-	h := rt.Register(uhandler)
+	h := rt.Register(uhandler, rhandler)
 
 	server := &http.Server{
 		Addr:         ":" + appConf.Port,

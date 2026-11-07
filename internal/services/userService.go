@@ -2,10 +2,11 @@ package services
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/VladVes/SES-Journal/internal/logger"
 	"github.com/VladVes/SES-Journal/internal/models"
 	"github.com/VladVes/SES-Journal/internal/repository"
+	"github.com/sirupsen/logrus"
 
 	"github.com/VladVes/SES-Journal/internal/dto"
 )
@@ -58,20 +59,47 @@ func (s *UserService) CreateNewUser(in dto.CreateUserRequest) (models.User, erro
 		return models.User{}, ErrEmailExists
 	}
 
-
-	tmp := models.User{
-		ID:       "2342",
-		Name:     "Ivan",
-		Email:    "ivan@mail.ru",
-		Password: "sfdsdf334",
-		Role:     "egineer",
-		Active:   true,
-		Records:  []models.Record{},
-
-		LastLogin: time.Now(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		DeletedAt: time.Now(),
+	newUser := models.User{
+		ID:       in.ID,
+		Name:     in.Name,
+		Email:    in.Email,
+		Active:   in.Active,
+		Role:     in.Role,
+		Password: in.Password,
 	}
-	return tmp, nil
+
+	user, err := s.repo.CreateUser(&newUser)
+	if err != nil {
+		logger.Log.WithError(err).WithFields(logrus.Fields{
+			"id":     in.ID,
+			"name":   in.Name,
+			"email":  in.Email,
+			"active": in.Active,
+			"role":   in.Role,
+		}).Error("failed to create new user")
+		return models.User{}, fmt.Errorf("user service: %w", err)
+	}
+	logger.Log.WithFields(logrus.Fields{
+		"id":     user.ID,
+		"name":   user.Name,
+		"email":  user.Email,
+		"active": user.Active,
+		"role":   user.Role,
+	}).Info("user created")
+
+	// tmp := models.User{
+	// 	ID:       "2342",
+	// 	Name:     "Ivan",
+	// 	Email:    "ivan@mail.ru",
+	// 	Password: "sfdsdf334",
+	// 	Role:     "egineer",
+	// 	Active:   true,
+	// 	Records:  []models.Record{},
+
+	// 	LastLogin: time.Now(),
+	// 	CreatedAt: time.Now(),
+	// 	UpdatedAt: time.Now(),
+	// 	DeletedAt: time.Now(),
+	// }
+	return user, nil
 }

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 
 	"github.com/VladVes/SES-Journal/internal/models"
@@ -8,7 +10,7 @@ import (
 
 type UserRepository interface {
 	GetUsersList() ([]models.User, error)
-	CreateUser(user *models.User) (string, error)
+	CreateUser(user *models.User) (models.User, error)
 	IsEmailExists(email string) (bool, error)
 }
 
@@ -22,9 +24,11 @@ func NewUserRepo(dbCon *gorm.DB) UserRepository {
 	}
 }
 
-func (r *UserRepo) CreateUser(u *models.User) (string, error) {
-	// TODO
-	return "", nil
+func (r *UserRepo) CreateUser(u *models.User) (models.User, error) {
+	if err := r.DB.Create(u).Error; err != nil {
+		return models.User{}, fmt.Errorf("user repo: %w", err)
+	}
+	return *u, nil
 }
 
 func (r *UserRepo) GetUsersList() ([]models.User, error) {

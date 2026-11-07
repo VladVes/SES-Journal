@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
+	// "fmt"
+
 	"net/http"
 
 	"github.com/VladVes/SES-Journal/internal/dto"
@@ -77,6 +79,7 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUser, err := h.userService.CreateNewUser(req)
+
 	if err != nil {
 		// проверяем обшибка ли бизнес слоя (service) или же чисто техническая
 		// связанная со взаимодействием с БД

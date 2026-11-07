@@ -81,16 +81,16 @@ func seedDB(db *gorm.DB) {
 	}
 }
 
-func initDBDevMode(db *gorm.DB) {
-	if err := db.AutoMigrate(&models.User{}, &models.Record{}); err != nil {
-		log.Fatalf("DB development mode initialization error: %v", err)
-	}
-	appLogger.Log.WithFields(logrus.Fields{
-		"ENV": conf.DevEnv,
-	}).Info("DB initialization successful")
+// func initDBDevMode(db *gorm.DB) {
+// 	if err := db.AutoMigrate(&models.User{}, &models.Record{}); err != nil {
+// 		log.Fatalf("DB development mode initialization error: %v", err)
+// 	}
+// 	appLogger.Log.WithFields(logrus.Fields{
+// 		"ENV": conf.DevEnv,
+// 	}).Info("DB initialization successful")
 
-	seedDB(db)
-}
+// 	seedDB(db)
+// }
 
 func dbConnect(dsn, env string) (*gorm.DB, error) {
 	dbConf := getDBConfig()
@@ -122,9 +122,9 @@ func dbConnect(dsn, env string) (*gorm.DB, error) {
 
 	log.Println("DB connection established")
 
-	if env == conf.DevEnv {
-		initDBDevMode(db)
-	}
+	// if env == conf.DevEnv {
+	// 	initDBDevMode(db)
+	// }
 
 	return db, nil
 }
