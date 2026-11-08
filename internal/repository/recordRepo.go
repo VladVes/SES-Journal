@@ -1,8 +1,7 @@
 package repository
 
 import (
-	"fmt"
-	"time"
+	"errors"
 
 	"gorm.io/gorm"
 
@@ -12,6 +11,7 @@ import (
 
 type RecordRepository interface {
 	GetRecordsList() ([]dto.RecordListItem, error)
+	GetRecordByID(id string) (*models.Record, error)
 }
 
 type RecordRepo struct {
@@ -25,21 +25,24 @@ func NewRecordRepo(dbCon *gorm.DB) *RecordRepo {
 }
 
 func (rr *RecordRepo) GetRecordsList() ([]dto.RecordListItem, error) {
-	var recordsList []models.Record
-	recordListItem := []dto.RecordListItem{
-		{ID: "wfs", RecNumber: 333, RecType: "sdfsfd", StartTime: time.Now(), EndTime: time.Now()},
-	}
+	var recordsList []dto.RecordListItem
 
-	// if err := rr.DB.Select("rec_number", "rec_type", "start_time", "end_time").Find(&recordsList).Error; err != nil {
-	// 	return nil, err
-	// }
-	// убрать кучу полей с датами
-	if err := rr.DB.Select("rec_number", "rec_type").Find(&recordsList).Error; err != nil {
+	if err := rr.DB.Model(models.Record{}).Select("ID", "RecNumber", "RecType", "StartTime", "EndTime").Scan(&recordsList).Error; err != nil {
 		return nil, err
 	}
-	fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	fmt.Println(recordsList)
 
-	return recordListItem, nil
+	return recordsList, nil
+}
 
+func (rr *RecordRepo) GetRecordByID(id string) (*models.Record, error) {
+	var record models.Record
+
+	if err := rr.DB.Preload("User").Where("ID = ?", id).First(&record).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrRecordNotFoundByID
+		}
+		return nil, err
+	}
+
+	return &record, nil
 }

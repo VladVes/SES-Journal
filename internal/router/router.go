@@ -22,6 +22,7 @@ func (r *Router) Register(uh *handler.UserHandler, rh *handler.RecordHandler) ht
 	r.mux.HandleFunc("POST /users", uh.HandleCreateUser)
 
 	r.mux.HandleFunc("GET /records", rh.HandleRecordsList)
+	r.mux.HandleFunc("GET /records/{id}", rh.HandleGetRecordByID)
 
 	return r.mux
 }
