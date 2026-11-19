@@ -89,3 +89,76 @@ func (rh *RecordHandler) HandleGetRecordByID(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "record json encoding failed", http.StatusInternalServerError)
 	}
 }
+
+func (rh *RecordHandler) HandleCreateRecord(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		return
+	}
+
+	defer r.Body.Close()
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	var createRecReq dto.CreateRecordRequest
+
+	if err := dec.Decode(&createRecReq); err != nil {
+		logger.Log.Warning("failed to decode create record req")
+		http.Error(w, "failed to decode create record request", http.StatusBadRequest)
+		return
+	}
+
+	createRecReq.Normalize()
+	if err := createRecReq.Validate(); err != nil {
+		logger.Log.WithError(err).Warning("failed to validate create record req")
+		http.Error(w, "failed to validate create record request", http.StatusBadRequest)
+		return
+	}
+
+	newRecord, err := rh.service.CreateNewRecord(&createRecReq)
+	if err != nil {
+		if errors.Is(err, services.ErrUserNotFound) {
+			logger.Log.WithError(err).WithField("UserID", createRecReq.UserID).Warning("failde to create a new record")
+			http.Error(w, "user with id in UserID field of record request not found", http.StatusUnprocessableEntity)
+			return
+		}
+
+		logger.Log.WithError(err).Error("failde to check is user exists")
+		http.Error(w, "failde to check is user exists", http.StatusInternalServerError)
+		return
+	}
+
+	resp := dto.CreateRecordResponse{
+
+		ID:        newRecord.ID,
+		RecNumber: newRecord.RecNumber,
+		RecType:   newRecord.RecType,
+
+		VisitorName:      newRecord.VisitorName,
+		VisitPurpose:     newRecord.VisitPurpose,
+		OrganizationName: newRecord.OrganizationName,
+
+		MalfunctionDesc:       newRecord.MalfunctionDesc,
+		MalfunctionCause:      newRecord.MalfunctionCause,
+		MalfunctionResolution: newRecord.MalfunctionResolution,
+		MalfunctionStatus:     newRecord.MalfunctionStatus,
+
+		UserID: newRecord.UserID,
+
+		StartTime: newRecord.StartTime,
+		EndTime:   newRecord.StartTime,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Location", "records/"+newRecord.ID)
+	w.WriteHeader(http.StatusCreated)
+
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		logger.Log.WithError(err).Error("failed to encode new record response")
+		http.Error(w, "failed to encode new record response", http.StatusInternalServerError)
+		return
+	}
+
+}

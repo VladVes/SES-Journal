@@ -87,19 +87,5 @@ func (s *UserService) CreateNewUser(in dto.CreateUserRequest) (models.User, erro
 		"role":   user.Role,
 	}).Info("user created")
 
-	// tmp := models.User{
-	// 	ID:       "2342",
-	// 	Name:     "Ivan",
-	// 	Email:    "ivan@mail.ru",
-	// 	Password: "sfdsdf334",
-	// 	Role:     "egineer",
-	// 	Active:   true,
-	// 	Records:  []models.Record{},
-
-	// 	LastLogin: time.Now(),
-	// 	CreatedAt: time.Now(),
-	// 	UpdatedAt: time.Now(),
-	// 	DeletedAt: time.Now(),
-	// }
 	return user, nil
 }

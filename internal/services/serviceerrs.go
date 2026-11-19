@@ -7,7 +7,8 @@ import "errors"
 var (
 	// 409 Conflict
 	ErrEmailExists = errors.New("email alrady exists")
-	
+
 	ErrInvalidRole = errors.New("invalid role")
 
+	ErrUserNotFound = errors.New("user not found")
 )

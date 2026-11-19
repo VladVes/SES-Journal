@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -11,14 +12,16 @@ import (
 
 type RecordRepository interface {
 	GetRecordsList() ([]dto.RecordListItem, error)
-	GetRecordByID(id string) (*models.Record, error)
+	GetRecordByID(id string) (models.Record, error)
+	CreateNewRecord(rec *models.Record) (models.Record, error)
+	IsUserExists(userID string) (bool, error)
 }
 
 type RecordRepo struct {
 	DB *gorm.DB
 }
 
-func NewRecordRepo(dbCon *gorm.DB) *RecordRepo {
+func NewRecordRepo(dbCon *gorm.DB) RecordRepository {
 	return &RecordRepo{
 		DB: dbCon,
 	}
@@ -34,15 +37,32 @@ func (rr *RecordRepo) GetRecordsList() ([]dto.RecordListItem, error) {
 	return recordsList, nil
 }
 
-func (rr *RecordRepo) GetRecordByID(id string) (*models.Record, error) {
+func (rr *RecordRepo) GetRecordByID(id string) (models.Record, error) {
 	var record models.Record
 
 	if err := rr.DB.Preload("User").Where("ID = ?", id).First(&record).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrRecordNotFoundByID
+			return models.Record{}, ErrRecordNotFoundByID
 		}
-		return nil, err
+		return models.Record{}, err
 	}
 
-	return &record, nil
+	return record, nil
+}
+
+func (rr *RecordRepo) CreateNewRecord(rec *models.Record) (models.Record, error) {
+	if err := rr.DB.Create(rec).Error; err != nil {
+		return models.Record{}, fmt.Errorf("records repo: %w", err)
+	}
+	return *rec, nil
+}
+
+func (rr *RecordRepo) IsUserExists(userID string) (bool, error) {
+	if err := rr.DB.Select("id").First(&models.User{}, "id = ?", userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
